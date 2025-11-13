@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "StructUtils/InstancedStruct.h"
+#include "AngelscriptManager.h"
 #include "EmmsEventListener.generated.h"
 
 UCLASS(NotBlueprintType)
