@@ -1,11 +1,19 @@
 #pragma once
 #include "Subsystems/WorldSubsystem.h"
 #include "MMWidget.h"
-#include "EmmsUISubsystem.generated.h"
 
 #if WITH_EDITOR
-class IAssetViewport;
+#include "SEditorViewport.h"
+
+class SEmmsEditorViewport : public SEditorViewport
+{
+public:
+	TSharedPtr<SOverlay> GetViewportOverlay() const { return ViewportOverlay; }
+};
 #endif
+
+#include "EmmsUISubsystem.generated.h"
+
 
 USTRUCT()
 struct FEmmsViewportOverlay
@@ -22,7 +30,7 @@ struct FEmmsViewportOverlay
 	uint64 LastDrawUITickCounter = 0;
 
 #if WITH_EDITOR
-	TWeakPtr<IAssetViewport> AssetViewport;
+	TWeakPtr<SEditorViewport> EditorViewport;
 #endif
 };
 

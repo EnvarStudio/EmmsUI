@@ -1,11 +1,6 @@
 #include "EmmsUISubsystem.h"
-#include "EmmsUISubsystem.h"
 #include "Engine/GameViewportClient.h"
 #include "Misc/PackageName.h"
-
-#if WITH_EDITOR
-#include "IAssetViewport.h"
-#endif
 
 void UEmmsUISubsystem::RemoveOverlayWidget(FEmmsViewportOverlay Overlay)
 {
@@ -20,9 +15,12 @@ void UEmmsUISubsystem::RemoveOverlayWidget(FEmmsViewportOverlay Overlay)
 	}
 
 #if WITH_EDITOR
-	if (TSharedPtr<IAssetViewport> AssetViewportPinned = Overlay.AssetViewport.Pin())
+	if (const TSharedPtr<SEmmsEditorViewport> EditorViewport = StaticCastSharedPtr<SEmmsEditorViewport>(Overlay.EditorViewport.Pin()))
 	{
-		AssetViewportPinned->RemoveOverlayWidget(Overlay.Widget->GetCachedWidget().ToSharedRef());
+		if (const TSharedPtr<SOverlay> ViewportOverlay = EditorViewport->GetViewportOverlay())
+		{
+			ViewportOverlay->RemoveSlot(Overlay.Widget->GetCachedWidget().ToSharedRef());
+		}
 	}
 #endif
 }

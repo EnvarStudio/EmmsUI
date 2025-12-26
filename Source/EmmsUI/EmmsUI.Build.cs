@@ -23,11 +23,12 @@ namespace UnrealBuildTool.Rules
 
 			if(Target.bCompileAgainstEditor)
 			{
-				PrivateDependencyModuleNames.AddRange(
-					new string[]
-					{
-						"UnrealEd",
-					});
+				PrivateDependencyModuleNames.AddRange(new string[]
+				{
+					"EditorFramework",
+					"Kismet",
+					"UnrealEd",
+				});
 			}
 		}
 	}

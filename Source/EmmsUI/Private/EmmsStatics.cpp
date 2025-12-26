@@ -20,9 +20,11 @@
 #include "EndAngelscriptHeaders.h"
 
 #if WITH_EDITOR
-#include "SLevelViewport.h"
+#include "BlueprintEditor.h"
 #include "Editor.h"
-#include "IAssetViewport.h"
+#include "Editor/Kismet/Private/SSCSEditorViewport.h"
+#include "SLevelViewport.h"
+#include "Toolkits/ToolkitManager.h"
 #endif
 
 TArray<UEmmsStatics::FImplicitHierarchy> UEmmsStatics::ImplicitHierarchy;
@@ -323,11 +325,32 @@ FEmmsWidgetHandle UEmmsStatics::BeginDrawViewportOverlay(const UObject* WorldCon
 			NewOverlay.ViewportClient = GameViewport;
 		}
 #if WITH_EDITOR
-		else if (GCurrentLevelEditingViewportClient)
+		else
 		{
-			TSharedPtr<SLevelViewport> LevelViewport = StaticCastSharedPtr<SLevelViewport>(GCurrentLevelEditingViewportClient->GetEditorViewportWidget());
-			NewOverlay.AssetViewport = LevelViewport;
-			LevelViewport->AddOverlayWidget(NewOverlay.Widget->TakeWidget(), OverlayZOrder);
+			if (WorldContext->IsA(UBlueprint::StaticClass()))
+			{
+				const TSharedPtr<IToolkit> AssetEditor = FToolkitManager::Get().FindEditorForAsset(WorldContext);
+				if (AssetEditor.IsValid() && AssetEditor->IsBlueprintEditor())
+				{
+					const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(AssetEditor);
+					NewOverlay.EditorViewport = StaticCastSharedPtr<SEditorViewport>(BlueprintEditor->GetSubobjectViewport());
+				}
+			}
+			else if (GCurrentLevelEditingViewportClient)
+			{
+				NewOverlay.EditorViewport = GCurrentLevelEditingViewportClient->GetEditorViewportWidget();
+			}
+
+			if (const TSharedPtr<SEmmsEditorViewport> EditorViewport = StaticCastSharedPtr<SEmmsEditorViewport>(NewOverlay.EditorViewport.Pin()))
+			{
+				if (const TSharedPtr<SOverlay> ViewportOverlay = EditorViewport->GetViewportOverlay())
+				{
+					ViewportOverlay->AddSlot(OverlayZOrder)
+					[
+						NewOverlay.Widget->TakeWidget()
+					];
+				}
+			}
 		}
 #endif
 
